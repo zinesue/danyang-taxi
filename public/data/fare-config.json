@@ -1,0 +1,14 @@
+{
+  "baseFare": 4000,
+  "baseDistance": 1350,
+  "breakpoint": 4000,
+  "nearUnit": 85,
+  "farUnit": 80,
+  "increment": 100,
+  "callFee": 1000,
+  "rounding": "ceil-combined-units",
+  "effectiveDate": "2023-08-21",
+  "sourceUrl": "https://www.danyang.go.kr/File/4d6251d8b767dbf5bebe7b8bdc004d54",
+  "verification": "2023-08-21 시행 단양군 공식 안내의 단가를 대조함. 이후 개정 여부와 미터기의 구간 전환·단수 처리는 추가 확인 필요.",
+  "note": "1,350m 초과~4,000m는 85m, 이후는 80m 단위를 누적하고 합계 단위를 올림한 예산용 추정입니다. 복합할증은 단가에 포함되어 중복 적용하지 않습니다. 여유율 적용 후 100원 단위로 올림합니다. 시간요금·심야할증·통행료는 제외됩니다."
+}
