@@ -7,4 +7,50 @@
 @media(max-height:540px){.app-shell{overflow:auto}.workspace{min-height:600px}.dashboard{max-height:none}.map-panel{min-height:260px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 .map-panel{container-type:size}.address-search>svg{flex-shrink:0}.address-search .search-results{max-height:min(300px,calc(100cqh - 82px));overscroll-behavior:contain}.address-search .search-results small{display:block;color:#52675e;font-size:13px;line-height:1.5;margin-top:4px;font-weight:400}.address-search .search-results span{overflow-wrap:anywhere}.address-search .search-results button[aria-selected=true]{background:#eaf4ee;box-shadow:inset 3px 0 #146a50}.address-search .search-hint{font-size:13px;line-height:1.6;color:#52675e;background:#f4f8f5;padding:10px 12px;border-bottom:1px solid #e3ebe6}.address-search .search-retry{color:#146a50;font-weight:600}.address-estimate-note{font-size:13px;color:#52675e;line-height:1.5;margin:0 0 8px}
-@media(max-width:600px) and (min-height:541px){.dashboard:has(.candidate-card){max-height:60dvh}}
+.app-header{height:36px;padding:0 16px}
+.brand{gap:6px}
+.brand h1{font-size:14px;letter-spacing:-.3px}
+.brand>svg{width:16px;height:16px}
+.test-badge{font-size:10px;padding:1px 5px}
+.header-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.header-actions .reset{min-height:28px;height:28px;font-size:12px;line-height:1;padding:4px 8px;gap:4px;border-radius:6px}
+.header-actions .reset svg{width:12px;height:12px}
+.header-actions .icon-button{width:28px;height:28px;border-radius:6px}
+.header-actions .icon-button svg{width:16px;height:16px}
+.budget-heading{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;font-size:14px}
+.budget-heading .budget-slider{min-width:0;height:36px;margin:0}
+.budget-heading output{font-size:22px;min-width:3.2em;text-align:right;white-space:nowrap}
+.budget-heading output span{font-size:14px;margin-left:2px}
+.candidate-info{min-width:0}
+@media(min-width:1001px){.dashboard-grid:not(:has(.plan-section)){grid-template-columns:minmax(290px,1fr) minmax(280px,1fr)}}
+@media(max-width:600px){
+  .app-header{height:32px;padding:0 10px}
+  .brand{gap:5px;min-width:0}
+  .brand h1{font-size:12px}
+  .brand>svg{width:14px;height:14px;flex-shrink:0}
+  .test-badge{display:none}
+  .header-actions{gap:2px}
+  .header-actions .reset{font-size:12px;padding:4px 7px;gap:4px}
+  .dashboard{padding:8px 14px max(8px,env(safe-area-inset-bottom))}
+  .dashboard-grid{gap:8px}
+  .budget-heading{gap:8px;font-size:13px}
+  .budget-heading .budget-slider{height:34px}
+  .budget-heading output{font-size:19px}
+  .budget-heading output span{font-size:13px}
+  .budget-stats{margin-top:6px;padding-top:6px}
+  .empty-candidate{min-height:40px}
+  .empty-candidate p{display:none}
+  .empty-candidate.completed p{display:block}
+  .candidate-card{display:grid;grid-template-columns:minmax(0,1fr) 84px;gap:10px;align-items:center}
+  .candidate-card .section-title{gap:4px;margin-top:-6px}
+  .candidate-card h2{font-size:16px;line-height:1.4}
+  .candidate-card .icon-button{margin-right:-5px}
+  .candidate-routes{gap:8px}
+  .candidate-routes span{font-size:13px}
+  .candidate-routes strong{font-size:18px}
+  .candidate-balance{font-size:13px;margin:5px 0 0}
+  .candidate-confirm{min-height:84px;padding:12px 8px;flex-direction:column;gap:5px;white-space:normal;word-break:keep-all;line-height:1.5}
+  .candidate-card .inline-warning{margin:5px 0 0}
+  .trip-details ol{max-height:none;overflow:visible}
+}
+@media(max-width:600px) and (min-height:541px){.dashboard{max-height:50dvh}}

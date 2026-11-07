@@ -24,7 +24,10 @@ export default function App() {
     <div className="app-shell">
       <header className="app-header">
         <div className="brand"><Mountain size={25} /><h1>단양 한바퀴</h1><span className="test-badge">테스트</span></div>
-        <button className="icon-button" aria-label="이용 안내" onClick={() => info.current?.showModal()}><CircleHelp size={22} /></button>
+        <div className="header-actions">
+          <button className="outline reset" disabled={!plan} onClick={reset}><RotateCcw size={16} />새 계획</button>
+          <button className="icon-button" aria-label="이용 안내" onClick={() => info.current?.showModal()}><CircleHelp size={22} /></button>
+        </div>
       </header>
       <main className="workspace">
         {metadata && plan ? <MapView metadata={metadata} plan={plan} analysis={analysis}
@@ -39,12 +42,14 @@ export default function App() {
           </div>}
           {plan && <div className="dashboard-grid">
             <section className="budget-section" aria-label="예산 선택과 현황">
-              <div className="budget-heading"><label htmlFor="budget">하루 택시 예산</label><output htmlFor="budget">{plan.budget / 10000}<span>만 원</span></output></div>
-              <input id="budget" className="budget-slider" type="range" min={BUDGET_MIN} max={BUDGET_MAX} step={BUDGET_STEP}
-                value={plan.budget} aria-valuetext={`${plan.budget / 10000}만 원`}
-                style={{ "--progress": `${(plan.budget - BUDGET_MIN) / (BUDGET_MAX - BUDGET_MIN) * 100}%` } as CSSProperties}
-                onChange={(event) => setPlan({ ...plan, budget: Number(event.target.value) })} />
-              <div className="budget-ticks" aria-hidden="true">{[2, 4, 6, 8, 10, 12, 14, 16].map(n => <span className={n * 10000 === plan.budget ? "selected" : ""} key={n}>{n}만</span>)}</div>
+              <div className="budget-heading">
+                <label htmlFor="budget">예산</label>
+                <input id="budget" className="budget-slider" type="range" min={BUDGET_MIN} max={BUDGET_MAX} step={BUDGET_STEP}
+                  value={plan.budget} aria-label="택시 예산" aria-valuetext={`${plan.budget / 10000}만 원`} title="2만~16만원 · 2만원 단위"
+                  style={{ "--progress": `${(plan.budget - BUDGET_MIN) / (BUDGET_MAX - BUDGET_MIN) * 100}%` } as CSSProperties}
+                  onChange={(event) => setPlan({ ...plan, budget: Number(event.target.value) })} />
+                <output htmlFor="budget">{plan.budget / 10000}<span>만원</span></output>
+              </div>
               <dl className="budget-stats" aria-live="polite" aria-busy={busy}>
                 <div><dt>사용 예정</dt><dd>{fresh && analysis ? money(analysis.spent) : "계산 중"}</dd></div>
                 <div><dt>남은 예산</dt><dd className={analysis && analysis.remaining < 0 ? "negative" : ""}>{fresh && analysis ? money(analysis.remaining) : "계산 중"}</dd></div>
@@ -58,21 +63,18 @@ export default function App() {
                 <CandidatePanel result={analysis.candidate} disabled={!fresh} onClear={() => setCandidate(null)}
                   onConfirm={() => { setPlan(confirmCandidate(plan, analysis)); setCandidate(null); }} /> :
                 <div className="empty-candidate" role="status"><span className="spinner" /><p>방문·복귀 요금 계산 중</p><button className="icon-button" aria-label="후보지 해제" onClick={() => setCandidate(null)}><X size={18} /></button></div> :
-                <div className="empty-candidate"><MapPin size={24} /><div><strong>{plan.finished ? "여행 경로 완성" : "주소 검색 또는 지도에서 선택"}</strong><p>{plan.finished && fresh && analysis ? `총 ${distance(analysis.totalDistance)} · 택시 ${analysis.rides}회` : "초록 도로는 소노길 복귀 비용까지 확보돼요."}</p></div></div>}
+                <div className={`empty-candidate${plan.finished ? " completed" : ""}`}><MapPin size={24} /><div><strong>{plan.finished ? "여행 경로 완성" : "주소 검색 또는 지도에서 선택"}</strong><p>{plan.finished && fresh && analysis ? `총 ${distance(analysis.totalDistance)} · 택시 ${analysis.rides}회` : "초록 도로는 소노길 복귀 비용까지 확보돼요."}</p></div></div>}
             </section>
-            <section className="plan-section" aria-label="경로 관리">
-              <div className="fixed-origin"><MapPin size={17} /><strong>소노길 출발 · 복귀</strong><span>고정</span></div>
+            {(plan.visits.length > 0 || plan.finished) && <section className="plan-section" aria-label="경로 관리">
               {plan.visits.length > 0 && <details className="trip-details"><summary>방문지 {plan.visits.length}곳 보기</summary>
-                <ol>{plan.visits.map((visit, i) => <li key={`${i}-${visit.lng}`}><span>{visit.name}{visit.addressEstimate && " (도로 추정)"}</span><small>{fresh && analysis?.confirmed[i] ? money(analysis.confirmed[i].fare.total) : "계산 중"}</small></li>)}</ol>
+                <ol>{plan.visits.map((visit, i) => <li key={`${i}-${visit.lng}`}><span>{visit.name}</span><small>{fresh && analysis?.confirmed[i] ? money(analysis.confirmed[i].fare.total) : "계산 중"}</small></li>)}</ol>
               </details>}
               <div className="plan-actions">
                 {(plan.visits.length > 0 || plan.finished) && <button className="outline" onClick={() => { setPlan(undoPlan(plan)); setCandidate(null); }}><Undo2 size={17} />{plan.finished ? "완료 취소" : "되돌리기"}</button>}
                 {!plan.finished && plan.visits.length > 0 && <button className="primary" disabled={!canFinish}
                   onClick={() => { if (analysis && fresh) { setPlan(finishPlan(plan, analysis)); setCandidate(null); } }}><Flag size={17} />소노길로 복귀</button>}
-                <button className="outline reset" onClick={reset}><RotateCcw size={17} />새 계획</button>
               </div>
-              <p className="fare-note">예상 요금 · 여유율 10% 포함</p>
-            </section>
+            </section>}
           </div>}
         </section>
       </main>

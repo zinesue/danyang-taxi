@@ -10,8 +10,8 @@ export function CandidatePanel({ result, disabled, onConfirm, onClear }: {
     : result.issue === "no-return" ? "소노길로 돌아오는 경로가 없습니다."
     : result.issue === "same-position" ? "현재 위치입니다. 다른 방문지를 선택해 주세요." : null;
   return <section className="candidate-card" aria-label="후보 목적지 조회">
+    <div className="candidate-info">
     <div className="section-title"><h2>{result.snap?.name || result.requested.name || "선택한 위치"}</h2><button className="icon-button" aria-label="후보지 해제" onClick={onClear}><X size={20} /></button></div>
-    {result.requested.addressEstimate && <p className="address-estimate-note">도로상 추정 위치 · 건물 출입구와 다를 수 있어요.</p>}
     {issue ? <p className="inline-warning">{issue}</p> : <>
       <div className="candidate-routes">
         <div><span><i className="route-dot orange" />방문 · {distance(result.outward!.distance)}</span><strong>{money(result.outward!.fare.total)}</strong></div>
@@ -20,6 +20,7 @@ export function CandidatePanel({ result, disabled, onConfirm, onClear }: {
       <p className={result.affordable ? "candidate-balance" : "inline-warning"}>{result.affordable ? `복귀 후 ${money(result.afterReturn!)} 남아요` : `복귀까지 ${money(-result.afterReturn!)} 부족해요`}</p>
     </>}
     {result.snap && result.snap.distanceToRoad > 50 && <p className="inline-warning">선택 지점에서 약 {Math.round(result.snap.distanceToRoad)}m 떨어진 도로 기준입니다. 도보 접근은 확인되지 않았습니다.</p>}
-    <button className="primary full" disabled={disabled || !result.affordable || !!result.issue} onClick={onConfirm}><Check size={19} />방문지 확정</button>
+    </div>
+    <button className="primary full candidate-confirm" disabled={disabled || !result.affordable || !!result.issue} onClick={onConfirm}><Check size={19} /><span>방문지 확정</span></button>
   </section>;
 }
