@@ -8,6 +8,10 @@
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 .map-panel{container-type:size}.address-search>svg{flex-shrink:0}.address-search .search-results{max-height:min(300px,calc(100cqh - 82px));overscroll-behavior:contain}.address-search .search-results small{display:block;color:#52675e;font-size:13px;line-height:1.5;margin-top:4px;font-weight:400}.address-search .search-results span{overflow-wrap:anywhere}.address-search .search-results button[aria-selected=true]{background:#eaf4ee;box-shadow:inset 3px 0 #146a50}.address-search .search-hint{font-size:13px;line-height:1.6;color:#52675e;background:#f4f8f5;padding:10px 12px;border-bottom:1px solid #e3ebe6}.address-search .search-retry{color:#146a50;font-weight:600}.address-estimate-note{font-size:13px;color:#52675e;line-height:1.5;margin:0 0 8px}
 .app-header{height:36px;padding:0 16px}
+.address-search{gap:6px;padding:0 6px}
+.address-search>.search-submit{width:40px;height:40px;flex-shrink:0;border-radius:8px;background:#edf5ef;color:var(--green)}
+.address-search>.search-submit:hover{background:#dfeee4}
+.address-search>button{flex-shrink:0}
 .brand{gap:6px}
 .brand h1{font-size:14px;letter-spacing:-.3px}
 .brand>svg{width:16px;height:16px}
@@ -22,6 +26,9 @@
 .budget-heading output{font-size:22px;min-width:3.2em;text-align:right;white-space:nowrap}
 .budget-heading output span{font-size:14px;margin-left:2px}
 .candidate-info{min-width:0}
+.budget-stats .budget-remaining:not(.negative){color:var(--green)}
+.trip-details .trip-return{list-style:none;border-top:1px solid var(--border);margin-top:4px;padding-top:8px;font-weight:600}
+.trip-details .trip-return small{color:var(--green);font-weight:700;white-space:nowrap}
 @media(min-width:1001px){.dashboard-grid:not(:has(.plan-section)){grid-template-columns:minmax(290px,1fr) minmax(280px,1fr)}}
 @media(max-width:600px){
   .app-header{height:32px;padding:0 10px}

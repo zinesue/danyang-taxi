@@ -92,6 +92,9 @@ export interface Analysis {
   visits: Snap[];
   confirmed: Route[];
   returnRoute: Route | null;
+  /** Displayed budget always includes one return from the final confirmed visit. */
+  budget: { visitCost: number; returnCost: number | null; remaining: number | null };
+  /** Completed legs only; routing must not subtract the return reservation twice. */
   spent: number;
   remaining: number;
   totalDistance: number;

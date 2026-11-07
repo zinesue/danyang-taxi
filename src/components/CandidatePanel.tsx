@@ -17,7 +17,7 @@ export function CandidatePanel({ result, disabled, onConfirm, onClear }: {
         <div><span><i className="route-dot orange" />방문 · {distance(result.outward!.distance)}</span><strong>{money(result.outward!.fare.total)}</strong></div>
         <div><span><i className="route-dot purple" />복귀 · {distance(result.homeward!.distance)}</span><strong>{money(result.homeward!.fare.total)}</strong></div>
       </div>
-      <p className={result.affordable ? "candidate-balance" : "inline-warning"}>{result.affordable ? `복귀 후 ${money(result.afterReturn!)} 남아요` : `복귀까지 ${money(-result.afterReturn!)} 부족해요`}</p>
+      <p className={result.affordable ? "candidate-balance" : "inline-warning"}>{result.affordable ? `확정 후 남은 예산 ${money(result.afterReturn!)}` : `확정 시 ${money(-result.afterReturn!)} 부족해요`}</p>
     </>}
     {result.snap && result.snap.distanceToRoad > 50 && <p className="inline-warning">선택 지점에서 약 {Math.round(result.snap.distanceToRoad)}m 떨어진 도로 기준입니다. 도보 접근은 확인되지 않았습니다.</p>}
     </div>

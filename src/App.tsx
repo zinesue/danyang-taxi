@@ -17,9 +17,9 @@ export default function App() {
     setCandidate(null);
     setNotice("");
   };
-  const returnCost = analysis?.returnRoute?.fare.total;
-  const canFinish = fresh && !!analysis?.returnRoute &&
-    analysis.returnRoute.fare.total <= analysis.remaining && !!plan?.visits.length;
+  const budget = analysis?.budget;
+  const canFinish = fresh && budget?.remaining != null &&
+    budget.remaining >= 0 && !!plan?.visits.length;
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -51,12 +51,12 @@ export default function App() {
                 <output htmlFor="budget">{plan.budget / 10000}<span>만원</span></output>
               </div>
               <dl className="budget-stats" aria-live="polite" aria-busy={busy}>
-                <div><dt>사용 예정</dt><dd>{fresh && analysis ? money(analysis.spent) : "계산 중"}</dd></div>
-                <div><dt>남은 예산</dt><dd className={analysis && analysis.remaining < 0 ? "negative" : ""}>{fresh && analysis ? money(analysis.remaining) : "계산 중"}</dd></div>
-                <div><dt>소노길 복귀비</dt><dd>{fresh ? returnCost !== undefined ? money(returnCost) : "경로 없음" : "계산 중"}</dd></div>
+                <div><dt>방문비</dt><dd>{fresh && budget ? money(budget.visitCost) : "계산 중"}</dd></div>
+                <div><dt>복귀비</dt><dd>{fresh && budget ? budget.returnCost !== null ? money(budget.returnCost) : "경로 없음" : "계산 중"}</dd></div>
+                <div><dt>남은 예산</dt><dd className={`budget-remaining${budget?.remaining != null && budget.remaining < 0 ? " negative" : ""}`}>{fresh && budget ? budget.remaining !== null ? money(budget.remaining) : "계산 불가" : "계산 중"}</dd></div>
               </dl>
-              {fresh && analysis && returnCost !== undefined && analysis.remaining < returnCost &&
-                <p className="inline-warning" role="alert">복귀까지 {money(returnCost - analysis.remaining)} 부족합니다. 예산을 늘리거나 방문을 취소해 주세요.</p>}
+              {fresh && budget?.remaining != null && budget.remaining < 0 &&
+                <p className="inline-warning" role="alert">복귀까지 {money(-budget.remaining)} 부족합니다. 예산을 늘리거나 방문을 취소해 주세요.</p>}
             </section>
             <section className="decision-section" aria-label="방문지 선택">
               {!plan.finished && candidate ? fresh && analysis?.candidate ?
@@ -66,13 +66,15 @@ export default function App() {
                 <div className={`empty-candidate${plan.finished ? " completed" : ""}`}><MapPin size={24} /><div><strong>{plan.finished ? "여행 경로 완성" : "주소 검색 또는 지도에서 선택"}</strong><p>{plan.finished && fresh && analysis ? `총 ${distance(analysis.totalDistance)} · 택시 ${analysis.rides}회` : "초록 도로는 소노길 복귀 비용까지 확보돼요."}</p></div></div>}
             </section>
             {(plan.visits.length > 0 || plan.finished) && <section className="plan-section" aria-label="경로 관리">
-              {plan.visits.length > 0 && <details className="trip-details"><summary>방문지 {plan.visits.length}곳 보기</summary>
-                <ol>{plan.visits.map((visit, i) => <li key={`${i}-${visit.lng}`}><span>{visit.name}</span><small>{fresh && analysis?.confirmed[i] ? money(analysis.confirmed[i].fare.total) : "계산 중"}</small></li>)}</ol>
+              {plan.visits.length > 0 && <details className="trip-details" key={plan.finished ? "completed" : "planning"} open={plan.finished}><summary>{plan.finished ? `전체 경로 · 방문 ${plan.visits.length}곳` : `방문지 ${plan.visits.length}곳 보기`}</summary>
+                <ol>{plan.visits.map((visit, i) => <li key={`${i}-${visit.lng}`}><span>{visit.name}</span><small>{fresh && analysis?.confirmed[i] ? money(analysis.confirmed[i].fare.total) : "계산 중"}</small></li>)}
+                  {plan.finished && <li className="trip-return"><span>소노길 복귀</span><small>{fresh && budget ? budget.returnCost !== null ? money(budget.returnCost) : "경로 없음" : "계산 중"}</small></li>}
+                </ol>
               </details>}
               <div className="plan-actions">
                 {(plan.visits.length > 0 || plan.finished) && <button className="outline" onClick={() => { setPlan(undoPlan(plan)); setCandidate(null); }}><Undo2 size={17} />{plan.finished ? "완료 취소" : "되돌리기"}</button>}
                 {!plan.finished && plan.visits.length > 0 && <button className="primary" disabled={!canFinish}
-                  onClick={() => { if (analysis && fresh) { setPlan(finishPlan(plan, analysis)); setCandidate(null); } }}><Flag size={17} />소노길로 복귀</button>}
+                  onClick={() => { if (analysis && fresh) { setPlan(finishPlan(plan, analysis)); setCandidate(null); } }}><Flag size={17} />완료</button>}
               </div>
             </section>}
           </div>}
@@ -81,7 +83,8 @@ export default function App() {
       <dialog ref={info} className="info-modal" onClick={event => { if (event.target === info.current) info.current.close(); }}>
         <div className="modal-content">
           <div className="section-title"><h2>이용 안내</h2><button className="icon-button" aria-label="이용 안내 닫기" onClick={() => info.current?.close()}><X size={22} /></button></div>
-          <p>소노길에서 출발해 같은 곳으로 돌아오는 여행입니다. 예산을 고른 뒤 지도에서 방문지를 누르고, 요금을 확인해 확정하세요. 확정할 때 해당 탑승 요금만 차감됩니다.</p>
+          <p>소노길에서 출발해 같은 곳으로 돌아오는 여행입니다. 남은 예산은 확정한 방문 구간의 누적 요금과 마지막 방문지에서 소노길까지의 복귀비를 모두 반영한 금액입니다. 방문지를 확정할 때마다 복귀비를 새로 계산합니다.</p>
+          <p>후보를 조회하는 동안에는 확정 후 남은 예산을 미리 보여줍니다. 완료를 누르면 복귀를 포함한 전체 경로가 확정되며 잔액이 추가로 줄어들지 않습니다.</p>
           <p>예산은 2만~16만 원, 2만 원 간격입니다. 테스트 버전에서는 출발·복귀 지점, 여유율(10%), 호출료(미포함)가 고정되며 경로 내보내기를 제공하지 않습니다.</p>
           <p>소노길의 도로상 대표 위치를 사용합니다. 특정 시설의 출입구를 뜻하지 않습니다.</p>
           <h3>도로명주소 검색</h3>

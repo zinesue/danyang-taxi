@@ -48,6 +48,14 @@ export function analyzePlan(
     current = visit;
   }
   let returnRoute = router.route(current, end, fare, plan.options);
+  const visitCost = confirmed.reduce((sum, route) => sum + route.fare.total, 0);
+  const returnCost = returnRoute?.fare.total ?? null;
+  // Keep the same display totals before/after finishing; reserve only this return.
+  const budget = {
+    visitCost,
+    returnCost,
+    remaining: returnCost === null ? null : plan.budget - visitCost - returnCost,
+  };
   if (plan.finished) {
     if (!returnRoute)
       throw new Error("최종 도착지까지 연결된 경로가 없습니다.");
@@ -113,6 +121,7 @@ export function analyzePlan(
     visits,
     confirmed,
     returnRoute,
+    budget,
     spent,
     remaining,
     totalDistance: confirmed.reduce((sum, route) => sum + route.distance, 0),
@@ -133,7 +142,7 @@ export function confirmCandidate(plan: Plan, analysis: Analysis): Plan {
     candidate.issue
   )
     return plan;
-  // Persist the exact snapped position; do not charge the displayed return reserve yet.
+  // Persist the exact stop; re-analysis replaces the current return reservation.
   return {
     ...plan,
     visits: [
@@ -155,8 +164,8 @@ export function undoPlan(plan: Plan): Plan {
 export function finishPlan(plan: Plan, analysis: Analysis): Plan {
   if (
     plan.finished ||
-    !analysis.returnRoute ||
-    analysis.returnRoute.fare.total > analysis.remaining
+    analysis.budget.remaining === null ||
+    analysis.budget.remaining < 0
   )
     return plan;
   return { ...plan, finished: true };

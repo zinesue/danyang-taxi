@@ -13,8 +13,19 @@ export function AddressSearch({ places, graphVersion, onSelect }: {
   const [retry, setRetry] = useState(0);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
+  const container = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const listId = useId();
+  useEffect(() => {
+    const closeOutside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !container.current?.contains(event.target)) {
+        setOpen(false);
+        setActive(-1);
+      }
+    };
+    document.addEventListener('pointerdown', closeOutside, true);
+    return () => document.removeEventListener('pointerdown', closeOutside, true);
+  }, []);
   useEffect(() => {
     let cancelled = false;
     setFailed(false);
@@ -36,10 +47,26 @@ export function AddressSearch({ places, graphVersion, onSelect }: {
     setActive(-1);
     input.current?.blur();
   };
-  return <div className="map-search address-search" onBlur={event => {
-    if (!event.currentTarget.contains(event.relatedTarget)) { setOpen(false); setActive(-1); }
+  const search = (useActive = false) => {
+    if (!query.trim()) { input.current?.focus(); return; }
+    setOpen(true);
+    // Only keyboard navigation may choose a highlighted result among several.
+    if (useActive && active >= 0 && matches[active]) select(matches[active]);
+    else if (matches.length === 1) select(matches[0]);
+    else if (!useActive) {
+      setActive(-1);
+      input.current?.blur();
+    }
+  };
+  return <div ref={container} className="map-search address-search" onBlur={event => {
+    // A touch or keyboard dismissal can blur to null before a result click.
+    // Outside pointer presses close the list separately; Tab still closes it.
+    if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget)) {
+      setOpen(false); setActive(-1);
+    }
   }}>
-    <Search size={18} aria-hidden="true" />
+    <button type="button" className="search-submit" aria-label="주소 검색" title="검색"
+      onClick={() => search()}><Search size={18} aria-hidden="true" /></button>
     <input ref={input} aria-label="도로명주소 검색" placeholder="주소 검색 · 삼봉로 123"
       role="combobox" aria-autocomplete="list" aria-expanded={expanded}
       aria-controls={expanded ? listId : undefined}
@@ -59,10 +86,7 @@ export function AddressSearch({ places, graphVersion, onSelect }: {
           document.getElementById(`${listId}-${next}`)?.scrollIntoView({ block: 'nearest' });
         }
         if (event.key === 'Enter') {
-          event.preventDefault(); setOpen(true);
-          // Multiple matching segments require an explicit choice.
-          if (active >= 0 && matches[active]) select(matches[active]);
-          else if (matches.length === 1) select(matches[0]);
+          event.preventDefault(); search(true);
         }
       }} />
     {query && <button aria-label="검색어 지우기" onClick={() => {
